@@ -1,0 +1,38 @@
+/*
+	Put anything you reference with "url()" in ../assets/
+	This way, you can minify your application, and just remove the "source" folder for production
+*/
+#app {
+	overflow: hidden;
+	background-image: url(../assets/bg-noise.png);
+}
+
+.search {
+	width: 100%;
+}
+
+.spot {
+	width: 100px;
+	height: 100px;
+	border-radius: 500px;
+	border: 2px solid white;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-top: -50px;
+	margin-left: -50px;
+	z-index: 100;
+	background: transparent;
+}
+
+.slice {
+	
+	z-index: 200;
+	
+	height: 100px;
+	width: 100px;
+	margin-left: -50px;
+	margin-top: -50px;
+	
+	position: absolute;
+}
