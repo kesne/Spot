@@ -104,26 +104,30 @@ enyo.kind({
 	 */
 	
 	sliceIn: function(inSender){
-		this.moving = true;
-		//Force this to true to allow power users to move faster:
-		this.expanded = true;
-		
-		if(this.position !== inSender.position){
-			this.position = inSender.position;
-			var rgb = enyo.rgb(inSender.hover);
-			enyo.jq(this.$.spot).stop(true, false).animate({
-				backgroundColor: "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.5)",
-				top: inSender.positions[inSender.position].top,
-				left: inSender.positions[inSender.position].left
-			}, 1000, "easeOutElastic", enyo.bind(this, function(){
-				this.moving = false;
-				this.startExpanding();
-			}));
+		if(!this.selectedFinal){
+			this.moving = true;
+			//Force this to true to allow power users to move faster:
+			this.expanded = true;
+			
+			if(this.position !== inSender.position){
+				this.position = inSender.position;
+				var rgb = enyo.rgb(inSender.hover);
+				enyo.jq(this.$.spot).stop(true, false).animate({
+					backgroundColor: rgb ? "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.5)" : "transparent",
+					top: inSender.positions[inSender.position].top,
+					left: inSender.positions[inSender.position].left
+				}, 1000, "easeOutElastic", enyo.bind(this, function(){
+					this.moving = false;
+					this.startExpanding();
+				}));
+			}
 		}
 	},
 	sliceOut: function(){
-		this.position = null;
-		this.shrinkBack(true);
+		if(!this.selectedFinal){
+			this.position = null;
+			this.shrinkBack(true);
+		}
 	},
 	
 	
@@ -139,101 +143,99 @@ enyo.kind({
 		enyo.jq(this.$.inpd.getId()).stop(true, false).animate({opacity: 0.3});
 	},
 	inputChanged: function(inSender, inEvent){
-		if(inEvent.keyCode === 13 && this.$.searchText.getValue().trim() !== ""){
-			window.location = "https://www.google.com/search?q=" + this.$.searchText.getValue();
+		if(!this.selectedFinal){
+			if(inEvent.keyCode === 13 && this.$.searchText.getValue().trim() !== ""){
+				window.location = "https://www.google.com/search?q=" + this.$.searchText.getValue();
+			}
 		}
 	},
 	spotIn: function(){
-		if(this.expanded){
-			this.startExpanding();
-		}else{
-			enyo.jq(this.$.search.getId()).fadeOut("fast");
-			enyo.jq(this.$.slices).fadeIn();
-			enyo.jq(this.$.spot.getId()).stop(true, false).animate({
-				width: "200px",
-				height: "200px",
-				marginLeft: "-100px",
-				marginTop: "-100px"
-			}, 1000, "easeOutElastic", enyo.bind(this, function(){
-				this.expanded = true;
-				if(enyo.jq(this.$.spot).is(':hover')){
-					this.startExpanding();
-				}
-			}));
+		if(!this.selectedFinal){
+			if(this.expanded){
+				this.startExpanding();
+			}else{
+				enyo.jq(this.$.search.getId()).fadeOut("fast");
+				enyo.jq(this.$.slices).fadeIn();
+				enyo.jq(this.$.spot.getId()).stop(true, false).animate({
+					width: "200px",
+					height: "200px",
+					marginLeft: "-100px",
+					marginTop: "-100px"
+				}, 1000, "easeOutElastic", enyo.bind(this, function(){
+					this.expanded = true;
+					if(enyo.jq(this.$.spot).is(':hover')){
+						this.startExpanding();
+					}
+				}));
+			}
 		}
 	},
 	shrinkBack: function(force){
-		if(this.expanded && (!this.moving || force)){
-			enyo.jq(this.$.spot.getId()).stop(true, false).animate({
-				top: "50%",
-				left: "50%",
-				width: "200px",
-				height: "200px",
-				marginLeft: "-100px",
-				marginTop: "-100px",
-				backgroundColor: "transparent"
-			}, 1000, "swing", enyo.bind(this, function(){
-				this.moving = false;
-				if(enyo.jq(this.$.spot).is(':hover')){
-					this.startExpanding();
-				}
-			}));
+		if(!this.selectedFinal){
+			if(this.expanded && (!this.moving || force)){
+				enyo.jq(this.$.spot.getId()).stop(true, false).animate({
+					top: "50%",
+					left: "50%",
+					width: "200px",
+					height: "200px",
+					marginLeft: "-100px",
+					marginTop: "-100px",
+					backgroundColor: "transparent"
+				}, 1000, "swing", enyo.bind(this, function(){
+					this.moving = false;
+					if(enyo.jq(this.$.spot).is(':hover')){
+						this.startExpanding();
+					}
+				}));
+			}
 		}
 	},
 	spotOut: function(){
-		console.log("Spot Out");
-		this.expanded = false;
-		this.stopExpanding();
-		enyo.jq(this.$.slices).fadeOut();
-		enyo.jq(this.$.spot.getId()).stop(true, false).animate({
-			width: "100px",
-			height: "100px",
-			marginLeft: "-50px",
-			marginTop: "-50px",
-			top: "50%",
-			left: "50%",
-			backgroundColor: "transparent"
-		}, 1000, "swing", enyo.bind(this, function(){
-			this.moving = false;
-		}));
-	},
-	
-	startExpanding: function(){
-		console.log("Start Expanding");
-		if(!this.moving){
+		if(!this.selectedFinal){
+			this.expanded = false;
+			this.stopExpanding();
+			enyo.jq(this.$.slices).fadeOut();
 			enyo.jq(this.$.spot.getId()).stop(true, false).animate({
-				width: "400px",
-				height: "400px",
-				marginLeft: "-200px",
-				marginTop: "-200px"
-			}, 1000, "easeInCubic", enyo.bind(this, function(){
-				enyo.jq(this.$.spot.getId()).animate({
-					width: "500%",
-					height: "500%",
-					top: "0px",
-					left: "0px",
-					marginLeft: "-100%",
-					marginTop: "-100%"
-				}, 300, function(){
-					window.location = "http://facebook.com";
-				});
-				return;
-				enyo.jq(this.$.spot.getId()).animate({
-					width: "150%",
-					height: "150%",
-					top: "0px",
-					left: "0px",
-					marginLeft: "0",
-					marginTop: "0",
-					borderRadius: "0"
-				}, 1300, function(){
-					window.location = "http://facebook.com";
-				});
+				width: "100px",
+				height: "100px",
+				marginLeft: "-50px",
+				marginTop: "-50px",
+				top: "50%",
+				left: "50%",
+				backgroundColor: "transparent"
+			}, 1000, "swing", enyo.bind(this, function(){
+				this.moving = false;
 			}));
 		}
 	},
+	
+	startExpanding: function(){
+		if(!this.selectedFinal){
+			if(!this.moving){
+				enyo.jq(this.$.spot.getId()).stop(true, false).animate({
+					width: "400px",
+					height: "400px",
+					marginLeft: "-200px",
+					marginTop: "-200px"
+				}, 1000, "easeInCubic", enyo.bind(this, function(){
+					this.selectedFinal = true;
+					enyo.jq(this.$.slices).fadeOut("fast");
+					enyo.jq(this.$.spot.getId()).animate({
+						width: "300%",
+						height: "300%",
+						top: "0px",
+						left: "0px",
+						marginLeft: "-100%",
+						marginTop: "-100%"
+					}, 300, function(){
+						window.location = "http://facebook.com";
+					});
+				}));
+			}
+		}
+	},
 	stopExpanding: function(){
-		enyo.jq(this.$.search.getId()).fadeIn("fast");
+		enyo.jq(this.$.search.getId()).fadeIn("slow");
 	}
 });
 
