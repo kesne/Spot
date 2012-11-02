@@ -48,7 +48,7 @@ enyo.kind({
 	hasDrawn: false,
 	components: [
 		{name: "search", classes: "search", components: [
-			{name: "inpd", kind: "onyx.InputDecorator", style: "display: block; margin: 10px auto; width: 320px; opacity: 0.3;", alwaysLooksFocused: true, components: [
+			{name: "inpd", kind: "onyx.InputDecorator", classes: "searchInput", alwaysLooksFocused: true, components: [
 				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: true, selectOnFocus: true, placeholder: "search...", onkeyup:"inputChanged", alwaysLooksFocused: true}
 			]},
 		]},
@@ -118,7 +118,7 @@ enyo.kind({
 					left: inSender.positions[inSender.position].left
 				}, 1000, "easeOutElastic", enyo.bind(this, function(){
 					this.moving = false;
-					this.startExpanding();
+					this.startExpanding(inSender);
 				}));
 			}
 		}
@@ -152,7 +152,7 @@ enyo.kind({
 	spotIn: function(){
 		if(!this.selectedFinal){
 			if(this.expanded){
-				this.startExpanding();
+				//this.startExpanding();
 			}else{
 				enyo.jq(this.$.search.getId()).fadeOut("fast");
 				enyo.jq(this.$.slices).fadeIn();
@@ -164,7 +164,7 @@ enyo.kind({
 				}, 1000, "easeOutElastic", enyo.bind(this, function(){
 					this.expanded = true;
 					if(enyo.jq(this.$.spot).is(':hover')){
-						this.startExpanding();
+						//this.startExpanding();
 					}
 				}));
 			}
@@ -209,9 +209,28 @@ enyo.kind({
 		}
 	},
 	
-	startExpanding: function(){
+	startExpanding: function(inSender){
 		if(!this.selectedFinal){
 			if(!this.moving){
+				enyo.jq(this.$.spot.getId()).stop(true, false).animate({
+					width: "100px",
+					height: "100px",
+					marginLeft: "-50px",
+					marginTop: "-50px"
+				}, 1000, "easeInCubic", enyo.bind(this, function(){
+					this.selectedFinal = true;
+					enyo.jq(this.$.slices).fadeOut("fast");
+					
+					enyo.jq(this.$.spot.getId()).animate({
+						width: "0%",
+						height: "0%",
+						marginLeft: "0",
+						marginTop: "0"
+					}, 300, function(){
+						window.location = inSender.url || "http://facebook.com";
+					});
+				}));
+				return;
 				enyo.jq(this.$.spot.getId()).stop(true, false).animate({
 					width: "400px",
 					height: "400px",
@@ -220,6 +239,18 @@ enyo.kind({
 				}, 1000, "easeInCubic", enyo.bind(this, function(){
 					this.selectedFinal = true;
 					enyo.jq(this.$.slices).fadeOut("fast");
+					
+					enyo.jq(this.$.spot.getId()).animate({
+						width: "0%",
+						height: "0%",
+						marginLeft: "0",
+						marginTop: "0"
+					}, 300, function(){
+						window.location = inSender.url || "http://facebook.com";
+					});
+					return;
+					
+					
 					enyo.jq(this.$.spot.getId()).animate({
 						width: "300%",
 						height: "300%",
@@ -228,7 +259,7 @@ enyo.kind({
 						marginLeft: "-100%",
 						marginTop: "-100%"
 					}, 300, function(){
-						window.location = "http://facebook.com";
+						window.location = inSender.url || "http://facebook.com";
 					});
 				}));
 			}
@@ -241,13 +272,20 @@ enyo.kind({
 
 enyo.kind({
 	name: "ColorGenerator",
-	components: [
-		{tag: "canvas", name: "canvas", attributes: {width: 500, height: 500}, style: "visibility: hidden; position: absolute; top: -1000; left: -1000;"}
+	canvas: [
+		{tag: "canvas", name: "canvas", attributes: {width: 500, height: 500}}
 	],
 	generate: function(src, inSender){
 	    var common = {};
-		     
-		canvas = document.getElementById(this.$.canvas.getId());
+		
+		//
+		var tc = enyo.clone(this.canvas);
+		tc.name = "canvas" + Math.round(Math.random() * 100);
+		el = this.createComponent(tc, {tag: "canvas",  style: "visibility: hidden; position: absolute; top: -1000; left: -1000;"});
+		this.render();
+		
+		canvas = document.getElementById(el.getId());
+		console.log(canvas);
 		context = canvas.getContext("2d");
 		
 		var img = new Image();
@@ -286,6 +324,8 @@ enyo.kind({
 			});
 			
 			inSender.setHover(sortable[sortable.length-1][0]);
+			console.log(sortable[sortable.length-1][0]);
+			console.log(inSender);
 		};
 		img.src = src;	
 	}
@@ -298,7 +338,7 @@ enyo.kind({
 		color: "#007bff",
 		position: 0,
 		icon: "",
-		hover: "transparent"
+		hover: "#ffffff"
 	},
 	components: [
 		{name: "icon", kind: "Image", style: "width: 100px; height: 100px;"}
@@ -318,11 +358,11 @@ enyo.kind({
 		},
 		{
 			top: "67%",
-			left: "80%",
+			left: "72.5%",
 		},
 		{
 			top: "67%",
-			left: "20%",
+			left: "27.5%",
 		}
 	],
 	create: function(){
