@@ -8,7 +8,7 @@ enyo.kind({
 		hover: "#ffffff"
 	},
 	components: [
-		{name: "icon", kind: "Image", style: "width: 100px; height: 100px;"}
+		{name: "icon", kind: "Image", style: "max-height: 100px; max-width: 100px; display: table-cell; vertical-align: middle;"}
 	],
 	positions: [
 		{
@@ -32,7 +32,7 @@ enyo.kind({
 			left: "27.5%",
 		}
 	],
-	create: function(){
+	rendered: function(){
 		this.inherited(arguments);
 		var p = this.positions[this.position];
 		this.applyStyle("top", p.top);

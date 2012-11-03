@@ -51,6 +51,8 @@ enyo.kind({
 			});
 			
 			inSender.setHover(sortable[sortable.length-1][0]);
+			
+			console.log(sortable[sortable.length-1][0]);
 		};
 		img.src = src;	
 	}

@@ -3,21 +3,27 @@ enyo.kind({
 	fit: true,
 	classes: "onyx",
 	hasDrawn: false,
+	handlers: {
+		onSettings: "drawIcons"
+	},
+	
 	components: [
 		{content: "`", classes: "icon", style: "font-size: 2em; position: absolute; right: 5px; top: 0px; margin: 0px; padding: 0px; color: white; opacity: 0.5;", onclick: "settingsClick", onmouseover: "settingsSpin", onmouseout: "settingsOff"},
 		{name: "search", classes: "search", components: [
 			{name: "inpd", kind: "onyx.InputDecorator", classes: "searchInput", alwaysLooksFocused: true, components: [
-				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: true, selectOnFocus: true, placeholder: "Search...", onkeyup:"inputChanged", alwaysLooksFocused: true}
+				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: true, selectOnFocus: true, placeholder: "Just type...", onkeyup:"inputChanged", alwaysLooksFocused: true}
 			]},
 		]},
 		{name: "spot", tag: "div", classes: "spot", onmouseover: "spotIn", onmouseout: "shrinkBack"},
 		{name: "slices", showing: false, components: [
-			{kind: "Slice", position: 0, icon: "assets/facebook.png", url: "http://facebook.com", onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
-			{kind: "Slice", position: 1, icon: "assets/google.png", url: "http://google.com", onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
-			{kind: "Slice", position: 2, icon: "assets/facebook.png", url: "#", onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
-			{kind: "Slice", position: 3, icon: "assets/facebook.png", url: "#", onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
-			{kind: "Slice", position: 4, icon: "assets/facebook.png", url: "#", onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
+			{kind: "Slice", position: 0, onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
+			{kind: "Slice", position: 1, onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
+			{kind: "Slice", position: 2, onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
+			{kind: "Slice", position: 3, onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
+			{kind: "Slice", position: 4, onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
 		]},
+		{kind: "Time"},
+		
 		{kind: "ColorGenerator", name: "CG"},
 		
 		{kind: "Settings", name: "settings"}
@@ -44,9 +50,6 @@ enyo.kind({
 	create: function(){
 		this.inherited(arguments);
 		
-		//TODO: Actually prefetch the pages on our favorites.
-		enyo.prefetch("http://facebook.com");
-		
 		//Escape key to close out of the spot.
 		$(document).keyup(enyo.bind(this, function(e) {
 			this.fsearch();
@@ -56,9 +59,17 @@ enyo.kind({
 		}));
 	},
 	
-	rendered: function(){
-		this.inherited(arguments);
-		this.generateIconColors();
+	drawIcons: function(){
+		var f = Settings.settings.favorites;
+		var c = this.$.slices.getClientControls();
+		for(var x in c){
+			if(c.hasOwnProperty(x)){
+				c[x].url = f[x].url;
+				c[x].icon = f[x].icon;
+				c[x].hover = f[x].hover;
+			}
+		}
+		this.render();
 	},
 	
 	//TODO: Should only do this when they first add icons, then we store the value, that way we reduce initial load time.
@@ -166,7 +177,7 @@ enyo.kind({
 				}, 1000, "swing", enyo.bind(this, function(){
 					this.moving = false;
 					if(enyo.jq(this.$.spot).is(':hover')){
-						this.startExpanding();
+						//this.startExpanding();
 					}
 				}));
 			}

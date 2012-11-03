@@ -16,5 +16,6 @@ enyo.depends(
 	"App.js",
 	"Slice.js",
 	"ColorGenerator.js",
-	"Settings.js"
+	"Settings.js",
+	"Time.js"
 );
