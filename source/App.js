@@ -1,55 +1,13 @@
-enyo.jq = function(id){
-	if(typeof(id) === "string"){
-		return $("#" + id);
-	}else{
-		return $("#" + id.getId());
-	}
-}
-
-enyo.hex = function(r,g,b){
-	var componentToHex = function(c) {
-	    var hex = c.toString(16);
-	    return hex.length == 1 ? "0" + hex : hex;
-	}
-	return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
-
-enyo.rgb = function(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
-
-if (!String.prototype.trim) {
-	String.prototype.trim = function(){
-		return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-	};
-}
-
-enyo.prefetch = function(url){
-	var cr = document.createElement("link");
-	cr.rel = "prerender";
-	cr.href = url;
-	document.getElementsByTagName("head")[0].appendChild(cr);
-	
-	var ff = document.createElement("link");
-	ff.rel = "prefetch";
-	ff.href = url;
-	document.getElementsByTagName("head")[0].appendChild(ff);
-}
-
 enyo.kind({
 	name: "App",
 	fit: true,
 	classes: "onyx",
 	hasDrawn: false,
 	components: [
+		{content: "`", classes: "icon", style: "font-size: 2em; position: absolute; right: 5px; top: 0px; margin: 0px; padding: 0px; color: white; opacity: 0.5;", onclick: "settingsClick", onmouseover: "settingsSpin", onmouseout: "settingsOff"},
 		{name: "search", classes: "search", components: [
 			{name: "inpd", kind: "onyx.InputDecorator", classes: "searchInput", alwaysLooksFocused: true, components: [
-				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: true, selectOnFocus: true, placeholder: "search...", onkeyup:"inputChanged", alwaysLooksFocused: true}
+				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: true, selectOnFocus: true, placeholder: "Search...", onkeyup:"inputChanged", alwaysLooksFocused: true}
 			]},
 		]},
 		{name: "spot", tag: "div", classes: "spot", onmouseover: "spotIn", onmouseout: "shrinkBack"},
@@ -60,8 +18,28 @@ enyo.kind({
 			{kind: "Slice", position: 3, icon: "assets/facebook.png", url: "#", onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
 			{kind: "Slice", position: 4, icon: "assets/facebook.png", url: "#", onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
 		]},
-		{kind: "ColorGenerator", name: "CG"}
+		{kind: "ColorGenerator", name: "CG"},
+		
+		{kind: "Settings", name: "settings"}
 	],
+	
+	settingsClick: function(inSender){
+		this.settingsOff(inSender);
+		this.$.settings.show();
+	},
+	
+	settingsSpin: function(inSender){
+		enyo.jq(inSender).animate({opacity: 1}).rotate({
+			animateTo: 360,
+			callback: enyo.bind(this, function(){
+				enyo.jq(inSender).rotate(0);
+			})
+		});
+	},
+	
+	settingsOff: function(inSender){
+		enyo.jq(inSender).animate({opacity: 0.5});
+	},
 	
 	create: function(){
 		this.inherited(arguments);
@@ -115,7 +93,11 @@ enyo.kind({
 				enyo.jq(this.$.spot).stop(true, false).animate({
 					backgroundColor: rgb ? "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.5)" : "transparent",
 					top: inSender.positions[inSender.position].top,
-					left: inSender.positions[inSender.position].left
+					left: inSender.positions[inSender.position].left,
+					width: "200px",
+					height: "200px",
+					marginLeft: "-100px",
+					marginTop: "-100px"
 				}, 1000, "easeOutElastic", enyo.bind(this, function(){
 					this.moving = false;
 					this.startExpanding(inSender);
@@ -230,146 +212,10 @@ enyo.kind({
 						window.location = inSender.url || "http://facebook.com";
 					});
 				}));
-				return;
-				enyo.jq(this.$.spot.getId()).stop(true, false).animate({
-					width: "400px",
-					height: "400px",
-					marginLeft: "-200px",
-					marginTop: "-200px"
-				}, 1000, "easeInCubic", enyo.bind(this, function(){
-					this.selectedFinal = true;
-					enyo.jq(this.$.slices).fadeOut("fast");
-					
-					enyo.jq(this.$.spot.getId()).animate({
-						width: "0%",
-						height: "0%",
-						marginLeft: "0",
-						marginTop: "0"
-					}, 300, function(){
-						window.location = inSender.url || "http://facebook.com";
-					});
-					return;
-					
-					
-					enyo.jq(this.$.spot.getId()).animate({
-						width: "300%",
-						height: "300%",
-						top: "0px",
-						left: "0px",
-						marginLeft: "-100%",
-						marginTop: "-100%"
-					}, 300, function(){
-						window.location = inSender.url || "http://facebook.com";
-					});
-				}));
 			}
 		}
 	},
 	stopExpanding: function(){
 		enyo.jq(this.$.search.getId()).fadeIn("slow");
-	}
-});
-
-enyo.kind({
-	name: "ColorGenerator",
-	canvas: [
-		{tag: "canvas", name: "canvas", attributes: {width: 500, height: 500}}
-	],
-	generate: function(src, inSender){
-	    var common = {};
-		
-		//
-		var tc = enyo.clone(this.canvas);
-		tc.name = "canvas" + Math.round(Math.random() * 100);
-		el = this.createComponent(tc, {tag: "canvas",  style: "visibility: hidden; position: absolute; top: -1000; left: -1000;"});
-		this.render();
-		
-		canvas = document.getElementById(el.getId());
-		console.log(canvas);
-		context = canvas.getContext("2d");
-		
-		var img = new Image();
-		img.crossOrigin = '';
-		img.onload = function(){
-			context.drawImage(img,0,0);
-			var imgd = context.getImageData(0, 0, canvas.width, canvas.height);
-			var pix = imgd.data;
-			
-			// Loop over each pixel and invert the color.
-			for (var i = 0, n = pix.length; i < n; i += 4) {
-			    var r = pix[i  ]; // red
-			    var g = pix[i+1]; // green
-			    var b = pix[i+2]; // blue
-			    // i+3 is alpha (the fourth element)
-			    
-			    var hex = enyo.hex(r, g, b);
-			    
-			    if(hex !== "#000000" && hex !== "#ffffff"){   
-				    if(!common[hex]){
-				    	common[hex] = 1;
-				    }else{
-				    	common[hex]++;
-				    }
-			    }
-			}
-			
-			var sortable = [];
-			for (var color in common){
-				if(common.hasOwnProperty(color)){
-					sortable.push([color, common[color]]);
-				}
-			}
-			sortable.sort(function(a,b){
-		    	return a[1] - b[1];
-			});
-			
-			inSender.setHover(sortable[sortable.length-1][0]);
-			console.log(sortable[sortable.length-1][0]);
-			console.log(inSender);
-		};
-		img.src = src;	
-	}
-});
-
-enyo.kind({
-	name: "Slice",
-	classes: "slice",
-	published: {
-		color: "#007bff",
-		position: 0,
-		icon: "",
-		hover: "#ffffff"
-	},
-	components: [
-		{name: "icon", kind: "Image", style: "width: 100px; height: 100px;"}
-	],
-	positions: [
-		{
-			top: "20%",
-			left: "50%",
-		},
-		{
-			top: "37%",
-			left: "70%"
-		},
-		{
-			top: "37%",
-			left: "30%"
-		},
-		{
-			top: "67%",
-			left: "72.5%",
-		},
-		{
-			top: "67%",
-			left: "27.5%",
-		}
-	],
-	create: function(){
-		this.inherited(arguments);
-		var p = this.positions[this.position];
-		this.applyStyle("top", p.top);
-		this.applyStyle("left", p.left);
-		this.$.icon.setSrc(this.icon);
 	}
 });
