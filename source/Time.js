@@ -26,12 +26,11 @@ enyo.kind({
 	},
 	updateTime: function(){
 		var d = new Date();
-		var hours;
-		if (d.getHours() > 12) {
-			hours = d.getHours() - 12;
-		} else {
-			hours = d.getHours();
-		}
+		var hours = d.getHours();
+		  // Convert the hours component to 12-hour format if needed
+		hours = ( hours > 12 ) ? hours - 12 : hours;
+		hours = ( hours == 0 ) ? 12 : hours;
+		
 		this.$.time.setContent(hours + ":" + ("0" + d.getMinutes()).slice(-2));
 		this.$.date.setContent(this.months[d.getMonth()] + " " +  d.getDate() + ", " + d.getFullYear())
 	}

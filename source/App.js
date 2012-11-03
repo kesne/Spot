@@ -9,6 +9,12 @@ enyo.kind({
 	
 	components: [
 		{content: "`", classes: "icon", style: "font-size: 2em; position: absolute; right: 5px; top: 0px; margin: 0px; padding: 0px; color: white; opacity: 0.5;", onclick: "settingsClick", onmouseover: "settingsSpin", onmouseout: "settingsOff"},
+		//{content: "L", classes: "icon", style: "font-size: 2em; position: absolute; left: 5px; top: 0px; margin: 0px; padding: 0px; color: white; opacity: 0.5;", onclick: "profiles"},
+		/*{content: "L", onclick: "profiles", name: "L", kind: "Button", classes: "icon", style: "background: transparent; border: none; font-size: 2em; position: absolute; left: 5px; top: 0px; margin: 0px; padding: 0px; color: white; opacity: 0.5;"},
+		{name: "profileMenu", showing: false, style: "position: absolute; top: 40px; width: 220px; background-color: #eee;", onShow: "profiles", onHide: "profilesOut", components: [
+			{kind: "Control", name: "editableM", components: []}
+		]},*/
+		
 		{name: "search", classes: "search", components: [
 			{name: "inpd", kind: "onyx.InputDecorator", classes: "searchInput", alwaysLooksFocused: true, components: [
 				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: true, selectOnFocus: true, placeholder: "Just type...", onkeyup:"inputChanged", alwaysLooksFocused: true}
@@ -24,10 +30,24 @@ enyo.kind({
 		]},
 		{kind: "Time"},
 		
-		{kind: "ColorGenerator", name: "CG"},
-		
 		{kind: "Settings", name: "settings"}
 	],
+	
+	itemSelected: function(inSender, inContent){
+		Settings.settings.selected = inContent.content;
+		this.bubble("onSettings");
+		this.waterfall("onSettings");
+		//localStorage.setItem("settings");
+	},
+	
+	profiles: function(inSender){
+		this.$.profileMenu.setShowing(true);
+		this.$.L.applyStyle("opacity", 1);
+	},
+	profilesOut: function(inSender){
+		this.$.profileMenu.setShowing(false);
+		this.$.L.applyStyle("opacity", 0.5);
+	},
 	
 	settingsClick: function(inSender){
 		this.settingsOff(inSender);
@@ -35,7 +55,7 @@ enyo.kind({
 	},
 	
 	settingsSpin: function(inSender){
-		enyo.jq(inSender).animate({opacity: 1}).rotate({
+		enyo.jq(inSender).stop(true, false).animate({opacity: 1}).rotate({
 			animateTo: 360,
 			callback: enyo.bind(this, function(){
 				enyo.jq(inSender).rotate(0);
@@ -44,7 +64,7 @@ enyo.kind({
 	},
 	
 	settingsOff: function(inSender){
-		enyo.jq(inSender).animate({opacity: 0.5});
+		enyo.jq(inSender).stop(true, false).animate({opacity: 0.5});
 	},
 	
 	create: function(){
@@ -52,15 +72,22 @@ enyo.kind({
 		
 		//Escape key to close out of the spot.
 		$(document).keyup(enyo.bind(this, function(e) {
-			this.fsearch();
 			if (e.keyCode == 27) {
 				this.spotOut();
+			}else{
+				this.fsearch();
 			}
 		}));
+		/*
+		$(document).click(enyo.bind(this, function(e) {
+			if(e.srcElement.innerHTML !== "L"){
+				this.profilesOut();
+			}
+		}))*/
 	},
 	
 	drawIcons: function(){
-		var f = Settings.settings.favorites;
+		var f = Settings.settings.favorites[Settings.settings.selected];
 		var c = this.$.slices.getClientControls();
 		for(var x in c){
 			if(c.hasOwnProperty(x)){
@@ -69,17 +96,19 @@ enyo.kind({
 				c[x].hover = f[x].hover;
 			}
 		}
-		this.render();
-	},
-	
-	//TODO: Should only do this when they first add icons, then we store the value, that way we reduce initial load time.
-	generateIconColors: function(){
-		var c = this.$.slices.getClientControls();
-		for(var icons in c){
-			if(c.hasOwnProperty(icons)){
-				this.$.CG.generate(c[icons].icon, c[icons]);
+		/*
+		var e = Settings.settings.favorites;
+		var w = [];
+		for(var y in e){
+			if(e.hasOwnProperty(y)){
+				w.push({content: y, kind: "onyx.MenuItem", classes: "hoverFix"});
 			}
 		}
+		this.$.editableM.destroyComponents();
+		this.$.editableM.createComponents(w);
+		*/
+		this.$.slices.render();
+		this.spotOut();
 	},
 	
 	//Jump quicker with fast click:
@@ -219,9 +248,22 @@ enyo.kind({
 						height: "0%",
 						marginLeft: "0",
 						marginTop: "0"
-					}, 300, function(){
-						window.location = inSender.url || "http://facebook.com";
-					});
+					}, 300, enyo.bind(this, function(){
+						window.location = inSender.url || "#";
+						window.setTimeout(enyo.bind(this, function(){
+							enyo.jq(this.$.slices).fadeIn("fast");
+							enyo.jq(this.$.spot.getId()).stop(true, false).animate({
+								width: "200px",
+								height: "200px",
+								marginLeft: "-100px",
+								marginTop: "-100px"
+							}, enyo.bind(this, function(){
+								this.selectedFinal = false;
+								this.sliceOut();
+								this.shrinkBack();
+							}));
+						}), 1000);
+					}));
 				}));
 			}
 		}

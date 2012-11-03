@@ -3,7 +3,7 @@ enyo.kind({
 	canvas: [
 		{tag: "canvas", name: "canvas", attributes: {width: 500, height: 500}}
 	],
-	generate: function(src, inSender){
+	generate: function(src, callback){
 	    var common = {};
 		
 		//
@@ -50,9 +50,7 @@ enyo.kind({
 		    	return a[1] - b[1];
 			});
 			
-			inSender.setHover(sortable[sortable.length-1][0]);
-			
-			console.log(sortable[sortable.length-1][0]);
+			callback(sortable[sortable.length-1][0]);
 		};
 		img.src = src;	
 	}

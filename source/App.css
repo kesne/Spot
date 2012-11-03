@@ -11,6 +11,10 @@
 	width: 100%;
 }
 
+.hoverFix:hover {
+	background: #C2C2C2;
+}
+
 .searchInput {
 	display: block;
 	margin: 50px auto;
