@@ -13,7 +13,7 @@ var supportedCSS,styles=document.getElementsByTagName("head")[0].style,toCheck="
 for (var a=0;a<toCheck.length;a++) if (styles[toCheck[a]] !== undefined) supportedCSS = toCheck[a];
 // Bad eval to preven google closure to remove it from code o_O
 // After compresion replace it back to var IE = 'v' == '\v'
-var IE = eval('"v"=="\v"');
+var IE = false;
 
 jQuery.fn.extend({
     rotate:function(parameters)

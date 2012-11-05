@@ -17,10 +17,12 @@ enyo.kind({
 		
 		{name: "search", classes: "search", components: [
 			{name: "inpd", kind: "onyx.InputDecorator", classes: "searchInput", alwaysLooksFocused: true, components: [
-				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: true, selectOnFocus: true, placeholder: "Just type...", onkeyup:"inputChanged", alwaysLooksFocused: true}
+				{name: "searchText", kind: "onyx.Input", onfocus: "fsearch", onblur: "bsearch", defaultFocus: false, selectOnFocus: true, placeholder: "Just type...", onkeyup:"inputChanged", alwaysLooksFocused: true}
 			]},
 		]},
+		
 		{name: "spot", tag: "div", classes: "spot", onmouseover: "spotIn", onmouseout: "shrinkBack"},
+		
 		{name: "slices", showing: false, components: [
 			{kind: "Slice", position: 0, onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
 			{kind: "Slice", position: 1, onmouseover: "sliceIn", onmouseout: "sliceOut", onclick: "fastClick"},
@@ -72,6 +74,7 @@ enyo.kind({
 		
 		//Escape key to close out of the spot.
 		$(document).keyup(enyo.bind(this, function(e) {
+			console.log("KU");
 			if (e.keyCode == 27) {
 				this.spotOut();
 			}else{
@@ -86,7 +89,7 @@ enyo.kind({
 		}))*/
 	},
 	
-	drawIcons: function(){
+	drawIcons: function(firstLoad){
 		var f = Settings.settings.favorites[Settings.settings.selected];
 		var c = this.$.slices.getClientControls();
 		for(var x in c){
@@ -108,7 +111,11 @@ enyo.kind({
 		this.$.editableM.createComponents(w);
 		*/
 		this.$.slices.render();
-		this.spotOut();
+		if(this.firstload){
+			this.spotOut();
+		}else{
+			this.firstload = true;
+		}
 	},
 	
 	//Jump quicker with fast click:
@@ -122,7 +129,7 @@ enyo.kind({
 	 */
 	
 	sliceIn: function(inSender){
-		if(!this.selectedFinal){
+		if(!this.selectedFinal && !this.shrinking){
 			this.moving = true;
 			//Force this to true to allow power users to move faster:
 			this.expanded = true;
@@ -172,12 +179,23 @@ enyo.kind({
 		}
 	},
 	spotIn: function(){
-		if(!this.selectedFinal){
+		if(!this.selectedFinal && !this.shrinking){
 			if(this.expanded){
 				//this.startExpanding();
 			}else{
 				enyo.jq(this.$.search.getId()).fadeOut("fast");
-				enyo.jq(this.$.slices).fadeIn();
+				
+				enyo.jq(this.$.slices).fadeIn("slow");
+				var c = this.$.slices.getClientControls();
+				for(var x in c){
+					if(c.hasOwnProperty(x)){
+						enyo.jq(c[x]).animate({
+							top: c[x].positions[c[x].position].top,
+							left: c[x].positions[c[x].position].left
+						}, "slow", "easeOutExpo");
+					}
+				}
+				
 				enyo.jq(this.$.spot.getId()).stop(true, false).animate({
 					width: "200px",
 					height: "200px",
@@ -212,11 +230,21 @@ enyo.kind({
 			}
 		}
 	},
-	spotOut: function(){
+	spotOut: function(inSender){
 		if(!this.selectedFinal){
 			this.expanded = false;
+			this.shrinking = true;
 			this.stopExpanding();
-			enyo.jq(this.$.slices).fadeOut();
+			enyo.jq(this.$.slices).fadeOut("slow");
+			var c = this.$.slices.getClientControls();
+			for(var x in c){
+				if(c.hasOwnProperty(x)){
+					enyo.jq(c[x]).animate({
+						top: "50%",
+						left: "50%"
+					}, "slow", "easeOutQuad");
+				}
+			}
 			enyo.jq(this.$.spot.getId()).stop(true, false).animate({
 				width: "100px",
 				height: "100px",
@@ -226,6 +254,7 @@ enyo.kind({
 				left: "50%",
 				backgroundColor: "transparent"
 			}, 1000, "swing", enyo.bind(this, function(){
+				this.shrinking = false;
 				this.moving = false;
 			}));
 		}
