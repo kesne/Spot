@@ -74,7 +74,6 @@ enyo.kind({
 		
 		//Escape key to close out of the spot.
 		$(document).keyup(enyo.bind(this, function(e) {
-			console.log("KU");
 			if (e.keyCode == 27) {
 				this.spotOut();
 			}else{
