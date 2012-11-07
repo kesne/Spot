@@ -185,13 +185,15 @@ enyo.kind({
 				enyo.jq(this.$.search.getId()).fadeOut("fast");
 				
 				enyo.jq(this.$.slices).fadeIn("slow");
-				var c = this.$.slices.getClientControls();
-				for(var x in c){
-					if(c.hasOwnProperty(x)){
-						enyo.jq(c[x]).animate({
-							top: c[x].positions[c[x].position].top,
-							left: c[x].positions[c[x].position].left
-						}, "slow", "easeOutExpo");
+				if(!enyo.platform.firefox){
+					var c = this.$.slices.getClientControls();
+					for(var x in c){
+						if(c.hasOwnProperty(x)){
+							enyo.jq(c[x]).animate({
+								top: c[x].positions[c[x].position].top,
+								left: c[x].positions[c[x].position].left
+							}, "slow", "easeOutExpo");
+						}
 					}
 				}
 				
@@ -235,13 +237,15 @@ enyo.kind({
 			this.shrinking = true;
 			this.stopExpanding();
 			enyo.jq(this.$.slices).fadeOut("slow");
-			var c = this.$.slices.getClientControls();
-			for(var x in c){
-				if(c.hasOwnProperty(x)){
-					enyo.jq(c[x]).animate({
-						top: "50%",
-						left: "50%"
-					}, "slow", "easeOutQuad");
+			if(!enyo.platform.firefox){
+				var c = this.$.slices.getClientControls();
+				for(var x in c){
+					if(c.hasOwnProperty(x)){
+						enyo.jq(c[x]).animate({
+							top: "50%",
+							left: "50%"
+						}, "slow", "easeOutQuad");
+					}
 				}
 			}
 			enyo.jq(this.$.spot.getId()).stop(true, false).animate({

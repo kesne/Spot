@@ -35,11 +35,13 @@ enyo.kind({
 	rendered: function(){
 		this.inherited(arguments);
 		var p = this.positions[this.position];
-		//this.applyStyle("top", p.top);
-		//this.applyStyle("left", p.left);
-		
-		this.applyStyle("top", "50%");
-		this.applyStyle("left", "50%");
+		if(enyo.platform.firefox){
+			this.applyStyle("top", p.top);
+			this.applyStyle("left", p.left);
+		}else{
+			this.applyStyle("top", "50%");
+			this.applyStyle("left", "50%");
+		}
 		
 		this.$.icon.setSrc(this.icon);
 	}

@@ -5,12 +5,11 @@
     "newtab": "index.html"
   },
   "name": "A New, New Tab Page",
-  "description": "Enhance your New Tab Page with ultimate customizability and power. Awesome, like you. [ANTP]",
+  "description": "A better (and sexier) new tab page for the masses.",
   "version": "1.0.0",
   "permissions": [ "*://*/*" ],
   "web_accessible_resources": [
     "index.html"
   ],
   "manifest_version": 2,
- 
 }
