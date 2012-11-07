@@ -268,16 +268,15 @@ enyo.kind({
 					marginLeft: "-50px",
 					marginTop: "-50px"
 				}, 1000, "easeInCubic", enyo.bind(this, function(){
+					window.location = inSender.url || "#";
 					this.selectedFinal = true;
 					enyo.jq(this.$.slices).fadeOut("fast");
-					
 					enyo.jq(this.$.spot.getId()).animate({
 						width: "0%",
 						height: "0%",
 						marginLeft: "0",
 						marginTop: "0"
 					}, 300, enyo.bind(this, function(){
-						window.location = inSender.url || "#";
 						window.setTimeout(enyo.bind(this, function(){
 							enyo.jq(this.$.slices).fadeIn("fast");
 							enyo.jq(this.$.spot.getId()).stop(true, false).animate({
