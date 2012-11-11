@@ -1,0 +1,17 @@
+{
+	"name": "A New, New Tab Page",
+	"version": "1.0.0",
+	"manifest_version": 2,
+
+	"description": "A new, sexy, better new tab page.",
+
+	"permissions": [
+		"*://*/*"
+	],
+
+	"offline_enabled": true,
+  
+	"chrome_url_overrides": {
+		"newtab": "index.html"
+	}
+}

@@ -7218,11 +7218,13 @@ this.selectedFinal || t.keyCode === 13 && this.$.searchText.getValue().trim() !=
 spotIn: function() {
 if (!this.selectedFinal && !this.shrinking && !this.expanded) {
 enyo.jq(this.$.search.getId()).fadeOut("fast"), enyo.jq(this.$.slices).fadeIn("slow");
+if (!enyo.platform.firefox) {
 var e = this.$.slices.getClientControls();
 for (var t in e) e.hasOwnProperty(t) && enyo.jq(e[t]).animate({
 top: e[t].positions[e[t].position].top,
 left: e[t].positions[e[t].position].left
 }, "slow", "easeOutExpo");
+}
 enyo.jq(this.$.spot.getId()).stop(!0, !1).animate({
 width: "200px",
 height: "200px",
@@ -7249,11 +7251,13 @@ this.moving = !1, enyo.jq(this.$.spot).is(":hover");
 spotOut: function(e) {
 if (!this.selectedFinal) {
 this.expanded = !1, this.shrinking = !0, this.stopExpanding(), enyo.jq(this.$.slices).fadeOut("slow");
+if (!enyo.platform.firefox) {
 var t = this.$.slices.getClientControls();
 for (var n in t) t.hasOwnProperty(n) && enyo.jq(t[n]).animate({
 top: "50%",
 left: "50%"
 }, "slow", "easeOutQuad");
+}
 enyo.jq(this.$.spot.getId()).stop(!0, !1).animate({
 width: "100px",
 height: "100px",
@@ -7333,7 +7337,7 @@ left: "27.5%"
 rendered: function() {
 this.inherited(arguments);
 var e = this.positions[this.position];
-this.applyStyle("top", "50%"), this.applyStyle("left", "50%"), this.$.icon.setSrc(this.icon);
+enyo.platform.firefox ? (this.applyStyle("top", e.top), this.applyStyle("left", e.left)) : (this.applyStyle("top", "50%"), this.applyStyle("left", "50%")), this.$.icon.setSrc(this.icon);
 }
 });
 
